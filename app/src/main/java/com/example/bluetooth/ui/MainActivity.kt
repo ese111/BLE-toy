@@ -1,18 +1,16 @@
 package com.example.bluetooth.ui
 
-import android.Manifest.permission.*
+import android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
 import android.app.Activity
 import android.app.AlertDialog
-import android.bluetooth.*
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanResult
-import android.content.*
-import android.content.ContentValues.TAG
+import android.bluetooth.BluetoothAdapter
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -23,23 +21,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.example.bluetooth.BuildConfig
-import com.example.bluetooth.data.model.Device
-import com.example.bluetooth.data.service.BluetoothService
+import com.example.bluetooth.data.model.UserPosition
 import com.example.bluetooth.databinding.ActivityMainBinding
 import com.example.bluetooth.util.AppPermission.getPermissionList
 import com.example.bluetooth.util.repeatOnStarted
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
-
-private const val REQUEST_ENABLE_BT = 2
-private const val REQUEST_DISCOVER_BT = 1
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -134,37 +122,11 @@ class MainActivity : AppCompatActivity() {
             adapter = itemAdapter
         }
 
-        repeatOnStarted {
-            viewModel.devices.collect {
-                itemAdapter.submitList(it)
-            }
-        }
-
-        repeatOnStarted {
-            viewModel.bluetoothState.collect {
-                if (it) {
-                    val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                    enableBtIntent.putExtra("requestCode", -1)
-                    bluetoothEnableLaunch.launch(enableBtIntent)
-                }
-            }
-        }
-
-        repeatOnStarted {
-            viewModel.permission.collect {
-                if(it) {
-                    requestPermissionLauncher.launch(permission)
-                }
-            }
-        }
-
-        repeatOnStarted {
-            viewModel.activityState.collect {
-                if(it) {
-                    finish()
-                }
-            }
-        }
+        setDeviceObserve()
+        setPermissionObserve()
+        setBluetoothStateObserve()
+        setActivityStateObserve()
+        setLocationObserve()
 
         if (
             permission.all { permission ->
@@ -180,12 +142,63 @@ class MainActivity : AppCompatActivity() {
 
             viewModel.setBluetoothService()
             viewModel.setBindBluetoothService()
-            viewModel.scanBluetooth()
 
         } else {
             requestPermissionLauncher.launch(permission)
         }
 
+    }
+
+    private fun setDeviceObserve() {
+        repeatOnStarted {
+            viewModel.devices.collect {
+                itemAdapter.submitList(it)
+            }
+        }
+    }
+
+    private fun setBluetoothStateObserve() {
+        repeatOnStarted {
+            viewModel.bluetoothState.collect {
+                if (it) {
+                    val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                    enableBtIntent.putExtra("requestCode", -1)
+                    bluetoothEnableLaunch.launch(enableBtIntent)
+                }
+            }
+        }
+    }
+
+    private fun setPermissionObserve() {
+        repeatOnStarted {
+            viewModel.permission.collect {
+                if(it) {
+                    requestPermissionLauncher.launch(permission)
+                }
+            }
+        }
+    }
+
+    private fun setActivityStateObserve() {
+        repeatOnStarted {
+            viewModel.activityState.collect {
+                if(it) {
+                    finish()
+                }
+            }
+        }
+    }
+
+    private fun setLocationObserve() {
+        repeatOnStarted {
+            viewModel.location.collect {
+                if(viewModel.isNear(it)) {
+                    viewModel.scanBluetooth()
+                } else {
+                    viewModel.stopScan()
+                }
+            }
+        }
     }
 
     override fun onDestroy() {

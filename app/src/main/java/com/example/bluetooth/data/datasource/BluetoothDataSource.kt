@@ -48,9 +48,6 @@ class BluetoothDataSource @Inject constructor(
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
             val device: BluetoothDevice = result.device
-            val list = mutableListOf<Device>()
-            list.addAll(_devices.value)
-            Log.i("AppTest", "1 ${device.address}")
 
             if (ActivityCompat.checkSelfPermission(
                     context,
@@ -59,12 +56,8 @@ class BluetoothDataSource @Inject constructor(
             ) {
                 return
             }
-            Log.i("AppTest", "2 ${device.name}")
 
-            list.add(Device(device.name, device.address))
-            _devices.value = list
-//                stopScan()
-
+            addNewDeviceList(Device(device.name, device.address))
         }
     }
 
@@ -128,8 +121,6 @@ class BluetoothDataSource @Inject constructor(
     }
 
     fun scanBluetooth() {
-//        val bluetoothManager = context.getSystemService(BluetoothManager::class.java)
-//        bluetoothAdapter = bluetoothManager.adapter
         if (
             checkSelfPermission(
                 context,
@@ -148,6 +139,7 @@ class BluetoothDataSource @Inject constructor(
                 for (device in pairedDevices) {
                     val deviceName = device.name
                     val deviceHardwareAddress = device.address // MAC address
+                    addNewDeviceList(Device(deviceName, deviceHardwareAddress))
                 }
             }
             bluetoothAdapter.bluetoothLeScanner.startScan(scanCallback)
@@ -177,6 +169,13 @@ class BluetoothDataSource @Inject constructor(
 
     fun unregisterReceiver() {
         context.unregisterReceiver(gattUpdateReceiver)
+    }
+
+    private fun addNewDeviceList(device: Device) {
+        val list = mutableListOf<Device>()
+        list.addAll(_devices.value)
+        list.add(device)
+        _devices.value = list
     }
 
 }

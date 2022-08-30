@@ -1,37 +1,23 @@
 package com.example.bluetooth.ui
 
-import android.Manifest
-import android.Manifest.permission.BLUETOOTH_CONNECT
-import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothManager
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanResult
-import android.content.*
-import android.content.pm.PackageManager
-import android.os.Build
-import android.os.IBinder
-import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
-import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bluetooth.data.model.Device
+import com.example.bluetooth.data.model.MapResponse
+import com.example.bluetooth.data.model.UserPosition
 import com.example.bluetooth.data.repository.BluetoothRepository
-import com.example.bluetooth.data.service.BluetoothService
-import com.example.bluetooth.util.AppPermission
+import com.example.bluetooth.data.repository.LocationRepository
+import com.example.bluetooth.util.DefaultPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class BluetoothViewModel @Inject constructor(
-    private val repository: BluetoothRepository
+    private val bluetoothRepository: BluetoothRepository,
+    private val locationRepository: LocationRepository,
+    private val defaultPosition: DefaultPosition
 ) : ViewModel() {
 
     private val _devices = MutableStateFlow<List<Device>>(emptyList())
@@ -46,45 +32,55 @@ class BluetoothViewModel @Inject constructor(
     private val _activityState = MutableStateFlow(false)
     val activityState = _activityState.asStateFlow()
 
-    fun scanBluetooth() = repository.scanBluetooth()
+    private val _location = MutableStateFlow(UserPosition())
+    val location = _location.asStateFlow()
+
+    fun scanBluetooth() = bluetoothRepository.scanBluetooth()
 
     init {
         viewModelScope.launch {
-            repository.getPermissionState().collect {
+            bluetoothRepository.getPermissionState().collect {
                 _permission.value = it
             }
         }
 
         viewModelScope.launch {
-            repository.getBluetoothState().collect {
+            bluetoothRepository.getBluetoothState().collect {
                 _bluetoothState.value = it
             }
         }
 
         viewModelScope.launch {
-            repository.getDeviceList().collect {
+            bluetoothRepository.getDeviceList().collect {
                 _devices.value = it
             }
         }
 
         viewModelScope.launch {
-            repository.getActivityFinish().collect {
+            bluetoothRepository.getActivityFinish().collect {
                 _activityState.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            locationRepository.getLocation().collect {
+                _location.value = it
             }
         }
     }
 
+    fun isNear(location: UserPosition) = locationRepository.isNear(defaultPosition.position, location)
 
-    fun connectListener(address: String) = repository.connectListener(address)
+    fun connectListener(address: String) = bluetoothRepository.connectListener(address)
 
-    fun disconnectListener(address: String) = repository.disconnectListener(address)
+    fun disconnectListener(address: String) = bluetoothRepository.disconnectListener(address)
 
-    fun setBindBluetoothService() = repository.setBindBluetoothService()
+    fun setBindBluetoothService() = bluetoothRepository.setBindBluetoothService()
 
-    fun setBluetoothService() = repository.setBindBluetoothService()
+    fun setBluetoothService() = bluetoothRepository.setBindBluetoothService()
 
-    fun stopScan() = repository.stopScan()
+    fun stopScan() = bluetoothRepository.stopScan()
 
-    fun unregisterReceiver() = repository.unregisterReceiver()
+    fun unregisterReceiver() = bluetoothRepository.unregisterReceiver()
 
 }

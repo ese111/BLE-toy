@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Bluetooth</string>
+    <string name="search_hint">주소를 입력해주세요.</string>
+    <string name="default_address">기본 주소 : 서울시 송파구 위례성대로 138</string>
 </resources>

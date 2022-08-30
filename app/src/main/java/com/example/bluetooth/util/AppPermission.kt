@@ -20,6 +20,7 @@ object AppPermission {
         Manifest.permission.ACCESS_FINE_LOCATION
     )
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private val permissionS = arrayOf(
         Manifest.permission.BLUETOOTH_SCAN,
         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -27,15 +28,8 @@ object AppPermission {
         Manifest.permission.BLUETOOTH_ADVERTISE
     )
 
-    private val permissionQ = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-    )
-
-    fun getPermissionList() = when (Build.VERSION.SDK_INT) {
-        Build.VERSION_CODES.Q -> {
-            permissionQ
-        }
-        Build.VERSION_CODES.S -> {
+    fun getPermissionList() = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             permissionS
         }
         else -> {
