@@ -178,4 +178,8 @@ class BluetoothDataSource @Inject constructor(
         _devices.value = list
     }
 
+    fun clear() {
+        _devices.value = emptyList()
+    }
+
 }

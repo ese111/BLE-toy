@@ -201,9 +201,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onDestroy() {
         super.onDestroy()
         viewModel.unregisterReceiver()
+        viewModel.clear()
     }
 
 }

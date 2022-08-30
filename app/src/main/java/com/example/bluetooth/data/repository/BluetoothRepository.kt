@@ -52,4 +52,7 @@ class BluetoothRepository @Inject constructor(
 
     fun unregisterReceiver() = dataSource.unregisterReceiver()
 
+    fun clear() {
+        dataSource.clear()
+    }
 }

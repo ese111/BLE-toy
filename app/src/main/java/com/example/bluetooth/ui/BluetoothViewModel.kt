@@ -83,4 +83,8 @@ class BluetoothViewModel @Inject constructor(
 
     fun unregisterReceiver() = bluetoothRepository.unregisterReceiver()
 
+    fun clear() {
+        _devices.value = emptyList()
+        bluetoothRepository.clear()
+    }
 }
