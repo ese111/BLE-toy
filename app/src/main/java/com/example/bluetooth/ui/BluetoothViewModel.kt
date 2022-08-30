@@ -76,7 +76,7 @@ class BluetoothViewModel @Inject constructor(
 
     fun connectListener(address: String) = bluetoothRepository.connectListener(address)
 
-    fun disconnectListener(address: String) = bluetoothRepository.disconnectListener(address)
+    fun disconnectListener() = bluetoothRepository.disconnectListener()
 
     fun setBindBluetoothService() {
         bluetoothRepository.setBindBluetoothService()

@@ -36,8 +36,8 @@ class BluetoothRepository @Inject constructor(
         dataSource.connectListener(address)
     }
 
-    fun disconnectListener(address: String) {
-        dataSource.disconnectListener(address)
+    fun disconnectListener() {
+        dataSource.disconnectListener()
     }
 
     fun scanBluetooth() = dataSource.scanBluetooth()

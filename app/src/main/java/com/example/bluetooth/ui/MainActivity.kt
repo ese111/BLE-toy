@@ -84,8 +84,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.connectListener(address)
     }
 
-    private val disconnectListener: (String) -> Unit = { address ->
-        viewModel.disconnectListener(address)
+    private val disconnectListener: () -> Unit = {
+        viewModel.disconnectListener()
     }
 
     private val permission = getPermissionList()
@@ -208,12 +208,9 @@ class MainActivity : AppCompatActivity() {
     private fun setLocationObserve() {
         repeatOnStarted {
             viewModel.location.collect {
-                val t = viewModel.isNear(it)
-                if(t) {
-                    Log.d("AppTest", "$t")
+                if(viewModel.isNear(it)) {
                     viewModel.scanBluetooth()
                 } else {
-                    Log.d("AppTest", "$t")
                     viewModel.stopScan()
                     binding.tvResult.text = "지정 위치가 아닙니다."
                 }

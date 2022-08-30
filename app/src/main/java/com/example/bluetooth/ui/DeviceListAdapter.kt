@@ -10,7 +10,7 @@ import com.example.bluetooth.databinding.ItemBluetoothDeviceBinding
 
 class DeviceListAdapter(
     private val connect: (String) -> Unit,
-    private val disconnect: (String) -> Unit
+    private val disconnect: () -> Unit
 ) : ListAdapter<Device, DeviceListAdapter.DeviceViewHolder>(DeviceDiffUtil) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeviceViewHolder {
@@ -40,7 +40,7 @@ class DeviceListAdapter(
 
         private fun setOnDisconnectClick(address: String) {
             binding.tvDisconnect.setOnClickListener {
-                disconnect(address)
+                disconnect()
             }
         }
     }

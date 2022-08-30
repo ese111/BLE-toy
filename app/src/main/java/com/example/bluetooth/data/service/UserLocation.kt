@@ -38,8 +38,7 @@ class UserLocation @Inject constructor(
         val radLat1 = rad * lat1
         val radLat2 = rad * lat2
         val radDist = rad * (lon1 - lon2)
-        Log.d("Location", "myLocation: $lat2, $lon2")
-        Log.d("Location", "Location: $lat1, $lon1")
+
         var distance = sin(radLat1) * sin(radLat2)
         distance += cos(radLat1) * cos(radLat2) * cos(radDist)
         val ret = EARTH_R * acos(distance)
@@ -55,12 +54,12 @@ class UserLocation @Inject constructor(
         ) {
             var latitude = 1.0
             var longitude = 1.0
-            Log.d("Test", "GPS1 ${longitude}")
+
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
             fusedLocationClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
                     // Got last known location. In some rare situations this can be null.
-                    Log.d("Test", "GPS ${location?.longitude}")
+
                     if (location != null) {
                         latitude = location.latitude
                         longitude = location.longitude

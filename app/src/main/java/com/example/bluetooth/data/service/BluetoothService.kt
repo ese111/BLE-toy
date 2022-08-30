@@ -76,17 +76,18 @@ class BluetoothService: Service() {
         return  true
     }
 
-    fun disconnect(address: String): Boolean {
+    fun disconnect(): Boolean {
         bluetoothGatt?.let {
             if (AppPermission.getPermissionList().all { permission ->
                     ContextCompat.checkSelfPermission(
                         this,
                         permission
-                    ) == PackageManager.PERMISSION_GRANTED
+                    ) == PackageManager.PERMISSION_DENIED
                 }
             ) {
                 return false
             }
+            Log.i("Disconnect", "disconnect : ${it.device.name}, ${it.device.address}")
             it.disconnect()
         }
         return true

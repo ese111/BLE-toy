@@ -62,7 +62,8 @@ class BluetoothDataSource @Inject constructor(
             ){
                 return
             }
-
+            Log.i(ContentValues.TAG, "deviceName : ${device.name}")
+            Log.i(ContentValues.TAG, "deviceHardwareAddress : ${device.address}")
             addNewDeviceList(Device(device.name.orEmpty(), device.address.orEmpty()))
         }
 
@@ -77,12 +78,10 @@ class BluetoothDataSource @Inject constructor(
                 BluetoothService.ACTION_GATT_CONNECTED -> {
                     connected = true
                     Log.i(ContentValues.TAG, "ACTION_GATT_CONNECTED : $connected")
-//                    updateConnectionState(R.string.connected)
                 }
                 BluetoothService.ACTION_GATT_DISCONNECTED -> {
                     connected = false
                     Log.i(ContentValues.TAG, "ACTION_GATT_DISCONNECTED : $connected")
-//                    updateConnectionState(R.string.disconnected)
                 }
             }
         }
@@ -122,8 +121,8 @@ class BluetoothDataSource @Inject constructor(
         Log.d(ContentValues.TAG, "Connect request result = $result")
     }
 
-    fun disconnectListener(address: String) {
-        val result = bluetoothService.disconnect(address)
+    fun disconnectListener() {
+        val result = bluetoothService.disconnect()
         Log.d(ContentValues.TAG, "Disconnect request result = $result")
     }
 
