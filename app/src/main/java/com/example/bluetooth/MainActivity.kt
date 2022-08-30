@@ -233,12 +233,12 @@ class MainActivity : AppCompatActivity() {
             when (intent.action) {
                 BluetoothService.ACTION_GATT_CONNECTED -> {
                     connected = true
-                    Log.i(TAG, "ACTION_GATT_CONNECTED : ${connected}")
+                    Log.i(TAG, "ACTION_GATT_CONNECTED : $connected")
 //                    updateConnectionState(R.string.connected)
                 }
                 BluetoothService.ACTION_GATT_DISCONNECTED -> {
                     connected = false
-                    Log.i(TAG, "ACTION_GATT_DISCONNECTED : ${connected}")
+                    Log.i(TAG, "ACTION_GATT_DISCONNECTED : $connected")
 //                    updateConnectionState(R.string.disconnected)
                 }
             }
@@ -250,7 +250,7 @@ class MainActivity : AppCompatActivity() {
 //        unregisterReceiver(gattUpdateReceiver)
     }
 
-    private fun makeGattUpdateIntentFilter(): IntentFilter? {
+    private fun makeGattUpdateIntentFilter(): IntentFilter {
         return IntentFilter().apply {
             addAction(BluetoothService.ACTION_GATT_CONNECTED)
             addAction(BluetoothService.ACTION_GATT_DISCONNECTED)
@@ -287,7 +287,7 @@ class MainActivity : AppCompatActivity() {
             componentName: ComponentName,
             service: IBinder
         ) {
-            // bluetoothService 초기화 안되는 문제
+            Log.e(TAG, "bluetoothService")
             bluetoothService = (service as BluetoothService.LocalBinder).getService()
             Log.e(TAG, "Bluetooth initialize")
             bluetoothService.let { bluetooth ->
@@ -296,12 +296,11 @@ class MainActivity : AppCompatActivity() {
                     finish()
                 }
                 // perform device connection
-
             }
         }
 
         override fun onServiceDisconnected(componentName: ComponentName) {
-
+            Log.e(TAG, "onServiceDisconnected")
         }
     }
 
@@ -312,21 +311,23 @@ class MainActivity : AppCompatActivity() {
         if (!packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             finish()
         }
+        Log.i(TAG, "gattServiceIntent")
         val gattServiceIntent = Intent(this, BluetoothService::class.java)
         bindService(gattServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-//        startService(gattServiceIntent)
 
+        registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter())
         connectListener = { address ->
-            registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter())
+
             val result = bluetoothService.connect(address)
             Log.d(TAG, "Connect request result=$result")
         }
 
         disconnectListener =  { address ->
-            registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter())
+//            registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter())
             val result = bluetoothService.disconnect(address)
             Log.d(TAG, "Connect request result=$result")
         }
+
         itemAdapter = DeviceListAdapter(connectListener, disconnectListener)
 
         binding.rvDeviceList.apply {
@@ -350,7 +351,10 @@ class MainActivity : AppCompatActivity() {
                 ) == PackageManager.PERMISSION_GRANTED
             }
         ) {
-            permissionDialog(this)
+            if(checkSelfPermission(ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_DENIED) {
+                permissionDialog(this)
+            }
+
             Log.i("AppTest", "permissionS : true")
             val bluetoothManager = getSystemService(BluetoothManager::class.java)
             bluetoothAdapter = bluetoothManager.adapter

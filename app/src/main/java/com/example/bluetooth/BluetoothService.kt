@@ -1,10 +1,8 @@
 package com.example.bluetooth
 
-import android.Manifest
 import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.app.Service
 import android.bluetooth.*
-import android.bluetooth.BluetoothAdapter.STATE_CONNECTED
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,8 +10,6 @@ import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import java.security.Provider
 
 class BluetoothService: Service() {
 
@@ -30,10 +26,12 @@ class BluetoothService: Service() {
                 // successfully connected to the GATT Server
                 connectionState = STATE_CONNECTED
                 broadcastUpdate(ACTION_GATT_CONNECTED)
+                Log.i(TAG, "onConnectionStateChange")
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 // disconnected from the GATT Server
                 connectionState = STATE_DISCONNECTED
                 broadcastUpdate(ACTION_GATT_DISCONNECTED)
+                Log.i(TAG, "onConnectionStateChange")
             }
         }
     }
@@ -84,7 +82,7 @@ class BluetoothService: Service() {
             }
             it.disconnect()
         }
-        return  false
+        return true
     }
 
     private fun broadcastUpdate(action: String) {
