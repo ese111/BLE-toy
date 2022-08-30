@@ -58,7 +58,7 @@ class BluetoothService: Service() {
                         ContextCompat.checkSelfPermission(
                             this,
                             it
-                        ) != PackageManager.PERMISSION_GRANTED
+                        ) == PackageManager.PERMISSION_GRANTED
                     }
                 ) {
                     bluetoothGatt = device.connectGatt(this, false, bluetoothGattCallback)
@@ -78,11 +78,11 @@ class BluetoothService: Service() {
 
     fun disconnect(address: String): Boolean {
         bluetoothGatt?.let {
-            if (AppPermission.getPermissionList().all {
+            if (AppPermission.getPermissionList().all { permission ->
                     ContextCompat.checkSelfPermission(
                         this,
-                        it
-                    ) != PackageManager.PERMISSION_GRANTED
+                        permission
+                    ) == PackageManager.PERMISSION_GRANTED
                 }
             ) {
                 return false

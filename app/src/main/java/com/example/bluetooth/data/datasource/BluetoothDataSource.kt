@@ -10,6 +10,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
@@ -61,25 +62,8 @@ class BluetoothDataSource @Inject constructor(
             ){
                 return
             }
-            Log.e(ContentValues.TAG, "device.name : ${device.name}")
-            Log.e(ContentValues.TAG, "device.address : ${device.address}")
+
             addNewDeviceList(Device(device.name.orEmpty(), device.address.orEmpty()))
-        }
-
-        override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-            super.onBatchScanResults(results)
-            if (AppPermission.getPermissionList().all {
-                    checkSelfPermission(
-                        context,
-                        it) != PackageManager.PERMISSION_GRANTED
-                }
-            ) {
-                return
-            }
-
-            results?.forEach {
-                Log.i("onBatchScanResults", it.device.name)
-            }
         }
 
     }
@@ -161,13 +145,12 @@ class BluetoothDataSource @Inject constructor(
             val pairedDevices = bluetoothAdapter.bondedDevices
             Log.e(ContentValues.TAG, "${pairedDevices.size}")
             if (pairedDevices.size > 0) {
-                // There are paired devices. Get the name and address of each paired device.
                 for (device in pairedDevices) {
                     val deviceName = device.name
                     val deviceHardwareAddress = device.address // MAC address
                     addNewDeviceList(Device(deviceName, deviceHardwareAddress))
-                    Log.e(ContentValues.TAG, "deviceName : $deviceName")
-                    Log.e(ContentValues.TAG, "deviceHardwareAddress : $deviceHardwareAddress")
+                    Log.i(ContentValues.TAG, "deviceName : $deviceName")
+                    Log.i(ContentValues.TAG, "deviceHardwareAddress : $deviceHardwareAddress")
                 }
             }
             bluetoothAdapter.bluetoothLeScanner.startScan(scanCallback)
