@@ -1,6 +1,5 @@
 package com.example.bluetooth.data.service
 
-import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.app.Service
 import android.bluetooth.*
 import android.content.ContentValues.TAG
@@ -9,7 +8,8 @@ import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.bluetooth.util.AppPermission
 import javax.inject.Singleton
 
 @Singleton
@@ -54,10 +54,12 @@ class BluetoothService: Service() {
         bluetoothAdapter?.let { adapter ->
             try {
                 val device = adapter.getRemoteDevice(address)
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        BLUETOOTH_CONNECT
-                    ) == PackageManager.PERMISSION_GRANTED
+                if (AppPermission.getPermissionList().all {
+                        ContextCompat.checkSelfPermission(
+                            this,
+                            it
+                        ) != PackageManager.PERMISSION_GRANTED
+                    }
                 ) {
                     bluetoothGatt = device.connectGatt(this, false, bluetoothGattCallback)
                     Log.w(TAG, "connect > ${bluetoothGatt?.device}")
@@ -76,10 +78,12 @@ class BluetoothService: Service() {
 
     fun disconnect(address: String): Boolean {
         bluetoothGatt?.let {
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
+            if (AppPermission.getPermissionList().all {
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        it
+                    ) != PackageManager.PERMISSION_GRANTED
+                }
             ) {
                 return false
             }
@@ -105,10 +109,12 @@ class BluetoothService: Service() {
 
     private fun close() {
         bluetoothGatt?.let { gatt ->
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
+            if (AppPermission.getPermissionList().all {
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        it
+                    ) != PackageManager.PERMISSION_GRANTED
+                }
             ) {
                 return
             }

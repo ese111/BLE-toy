@@ -8,14 +8,6 @@ import androidx.annotation.RequiresApi
 
 object AppPermission {
 
-    fun hasBluetoothConnectPermission(context: Context) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        context.checkSelfPermission(
-        Manifest.permission.BLUETOOTH_CONNECT
-        ) == PackageManager.PERMISSION_GRANTED
-    } else {
-        true
-    }
-
     private val permission = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION
     )

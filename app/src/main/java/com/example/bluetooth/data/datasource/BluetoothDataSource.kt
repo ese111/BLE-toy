@@ -11,12 +11,15 @@ import android.content.pm.PackageManager
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.example.bluetooth.data.model.Device
 import com.example.bluetooth.data.service.BluetoothService
+import com.example.bluetooth.util.AppPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import okhttp3.internal.notifyAll
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,7 +28,7 @@ class BluetoothDataSource @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    private val _devices = MutableStateFlow<List<Device>>(emptyList())
+    private val _devices = MutableStateFlow<Set<Device>>(emptySet())
     val devices = _devices.asStateFlow()
 
     private val _activityFinish = MutableStateFlow(false)
@@ -49,16 +52,36 @@ class BluetoothDataSource @Inject constructor(
             super.onScanResult(callbackType, result)
             val device: BluetoothDevice = result.device
 
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
+            if (
+                AppPermission.getPermissionList().all {
+                    checkSelfPermission(
+                        context,
+                    it) != PackageManager.PERMISSION_GRANTED
+                }
+            ){
+                return
+            }
+            Log.e(ContentValues.TAG, "device.name : ${device.name}")
+            Log.e(ContentValues.TAG, "device.address : ${device.address}")
+            addNewDeviceList(Device(device.name.orEmpty(), device.address.orEmpty()))
+        }
+
+        override fun onBatchScanResults(results: MutableList<ScanResult>?) {
+            super.onBatchScanResults(results)
+            if (AppPermission.getPermissionList().all {
+                    checkSelfPermission(
+                        context,
+                        it) != PackageManager.PERMISSION_GRANTED
+                }
             ) {
                 return
             }
 
-            addNewDeviceList(Device(device.name, device.address))
+            results?.forEach {
+                Log.i("onBatchScanResults", it.device.name)
+            }
         }
+
     }
 
     private var connected = false
@@ -112,22 +135,25 @@ class BluetoothDataSource @Inject constructor(
 
     fun connectListener(address: String) {
         val result = bluetoothService.connect(address)
-        Log.d(ContentValues.TAG, "Connect request result=$result")
+        Log.d(ContentValues.TAG, "Connect request result = $result")
     }
 
     fun disconnectListener(address: String) {
         val result = bluetoothService.disconnect(address)
-        Log.d(ContentValues.TAG, "Connect request result=$result")
+        Log.d(ContentValues.TAG, "Disconnect request result = $result")
     }
 
     fun scanBluetooth() {
         if (
-            checkSelfPermission(
-                context,
-                Manifest.permission.BLUETOOTH_SCAN
-            ) == PackageManager.PERMISSION_GRANTED
+            AppPermission.getPermissionList().all {
+                checkSelfPermission(
+                    context,
+                    it
+                ) != PackageManager.PERMISSION_GRANTED
+            }
         ) {
             _permission.value = true
+            return
         }
         _permission.value = false
 
@@ -140,6 +166,8 @@ class BluetoothDataSource @Inject constructor(
                     val deviceName = device.name
                     val deviceHardwareAddress = device.address // MAC address
                     addNewDeviceList(Device(deviceName, deviceHardwareAddress))
+                    Log.e(ContentValues.TAG, "deviceName : $deviceName")
+                    Log.e(ContentValues.TAG, "deviceHardwareAddress : $deviceHardwareAddress")
                 }
             }
             bluetoothAdapter.bluetoothLeScanner.startScan(scanCallback)
@@ -158,10 +186,12 @@ class BluetoothDataSource @Inject constructor(
 
     fun stopScan() {
         if (
-            checkSelfPermission(
-                context,
-                Manifest.permission.BLUETOOTH_SCAN
-            ) == PackageManager.PERMISSION_GRANTED
+            AppPermission.getPermissionList().all {
+                checkSelfPermission(
+                    context,
+                    it
+                ) == PackageManager.PERMISSION_GRANTED
+            }
         ) {
             bluetoothAdapter.bluetoothLeScanner.stopScan(scanCallback)
         }
@@ -172,14 +202,14 @@ class BluetoothDataSource @Inject constructor(
     }
 
     private fun addNewDeviceList(device: Device) {
-        val list = mutableListOf<Device>()
-        list.addAll(_devices.value)
-        list.add(device)
-        _devices.value = list
+        val set = mutableSetOf<Device>()
+        set.addAll(_devices.value)
+        set.add(device)
+        _devices.value = set
     }
 
     fun clear() {
-        _devices.value = emptyList()
+        _devices.value = emptySet()
     }
 
 }

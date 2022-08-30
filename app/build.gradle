@@ -13,6 +13,7 @@ repositories {
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.android.application'
 
 def Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -90,5 +91,8 @@ dependencies {
     // Moshi
     implementation 'com.squareup.moshi:moshi:1.13.0'
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.13.0'
+
+    // google-service
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
 
 }

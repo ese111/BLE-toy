@@ -1,9 +1,9 @@
 package com.example.bluetooth.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bluetooth.data.model.Device
-import com.example.bluetooth.data.model.MapResponse
 import com.example.bluetooth.data.model.UserPosition
 import com.example.bluetooth.data.repository.BluetoothRepository
 import com.example.bluetooth.data.repository.LocationRepository
@@ -52,7 +52,7 @@ class BluetoothViewModel @Inject constructor(
 
         viewModelScope.launch {
             bluetoothRepository.getDeviceList().collect {
-                _devices.value = it
+                _devices.value = it.toList()
             }
         }
 
@@ -64,10 +64,13 @@ class BluetoothViewModel @Inject constructor(
 
         viewModelScope.launch {
             locationRepository.getLocation().collect {
+                Log.d("ViewModel", "getLocation : $it")
                 _location.value = it
             }
         }
     }
+
+    fun setLocation() = locationRepository.setLocation()
 
     fun isNear(location: UserPosition) = locationRepository.isNear(defaultPosition.position, location)
 
@@ -75,9 +78,13 @@ class BluetoothViewModel @Inject constructor(
 
     fun disconnectListener(address: String) = bluetoothRepository.disconnectListener(address)
 
-    fun setBindBluetoothService() = bluetoothRepository.setBindBluetoothService()
+    fun setBindBluetoothService() {
+        bluetoothRepository.setBindBluetoothService()
+    }
 
-    fun setBluetoothService() = bluetoothRepository.setBindBluetoothService()
+    fun setBluetoothService() {
+        bluetoothRepository.setBindBluetoothService()
+    }
 
     fun stopScan() = bluetoothRepository.stopScan()
 

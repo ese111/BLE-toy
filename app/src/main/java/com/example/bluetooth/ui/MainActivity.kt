@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,27 +48,35 @@ class MainActivity : AppCompatActivity() {
             val list = mutableListOf<String>()
             isGranted.forEach { (permission, state) ->
                 if (state) {
+                    if (checkSelfPermission(ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_DENIED) {
+                        permissionDialog(this)
+                    }
+                } else {
                     if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
                         Toast.makeText(this, "권한 설정을 하지 않으면 어플을 사용할 수 없습니다.", Toast.LENGTH_SHORT)
                             .show()
                         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                             .setData(Uri.parse("package:" + BuildConfig.APPLICATION_ID))
                         startActivity(intent)
+                        finish()
                     }
-                } else {
                     list.add(permission)
                 }
             }
-            requestPermissions(list.toTypedArray(), 3)
+
+            if(list.isNotEmpty()) {
+                requestPermissions(list.toTypedArray(), 3)
+            }
         }
 
     private val bluetoothEnableLaunch: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            Log.i("AppTest", "bluetoothEnableLaunch : ${result.resultCode}")
             if (result.resultCode == Activity.RESULT_OK) {
                 Toast.makeText(this, "블루투스를 활성화하였습니다.", Toast.LENGTH_SHORT)
+                finish()
             } else {
                 Toast.makeText(this, "블루투스를 활성화해주세요.", Toast.LENGTH_SHORT)
+                finish()
             }
         }
 
@@ -102,6 +111,7 @@ class MainActivity : AppCompatActivity() {
                     backgroundPermission()
             }
         }
+
         builder.setPositiveButton("네", listener)
         builder.setNegativeButton("아니오", null)
 
@@ -116,6 +126,21 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
+        if (
+            permission.all { permission ->
+                ContextCompat.checkSelfPermission(
+                    this,
+                    permission
+                ) == PackageManager.PERMISSION_GRANTED
+            }
+        ) {
+            if (checkSelfPermission(ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_DENIED) {
+                permissionDialog(this)
+            }
+        } else {
+            requestPermissionLauncher.launch(permission)
+        }
+
         itemAdapter = DeviceListAdapter(connectListener, disconnectListener)
 
         binding.rvDeviceList.apply {
@@ -128,30 +153,21 @@ class MainActivity : AppCompatActivity() {
         setActivityStateObserve()
         setLocationObserve()
 
-        if (
-            permission.all { permission ->
-                ContextCompat.checkSelfPermission(
-                    this,
-                    permission
-                ) == PackageManager.PERMISSION_GRANTED
-            }
-        ) {
-            if (checkSelfPermission(ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_DENIED) {
-                permissionDialog(this)
-            }
-
-            viewModel.setBluetoothService()
-            viewModel.setBindBluetoothService()
-
-        } else {
-            requestPermissionLauncher.launch(permission)
-        }
+        viewModel.setLocation()
+        viewModel.setBluetoothService()
+        viewModel.setBindBluetoothService()
 
     }
 
     private fun setDeviceObserve() {
         repeatOnStarted {
             viewModel.devices.collect {
+                if(it.isEmpty()) {
+                    binding.tvResult.visibility = View.VISIBLE
+                    binding.tvResult.text = "검색결과가 없습니다."
+                } else {
+                    binding.tvResult.visibility = View.GONE
+                }
                 itemAdapter.submitList(it)
             }
         }
@@ -192,20 +208,46 @@ class MainActivity : AppCompatActivity() {
     private fun setLocationObserve() {
         repeatOnStarted {
             viewModel.location.collect {
-                if(viewModel.isNear(it)) {
+                val t = viewModel.isNear(it)
+                if(t) {
+                    Log.d("AppTest", "$t")
                     viewModel.scanBluetooth()
                 } else {
+                    Log.d("AppTest", "$t")
                     viewModel.stopScan()
+                    binding.tvResult.text = "지정 위치가 아닙니다."
                 }
             }
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if(
+            grantResults.all {
+                it == PackageManager.PERMISSION_DENIED
+            }
+        ) {
+            finish()
+        } else {
+            if (checkSelfPermission(ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_DENIED) {
+                permissionDialog(this)
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.clear()
+    }
 
     override fun onDestroy() {
         super.onDestroy()
         viewModel.unregisterReceiver()
-        viewModel.clear()
     }
 
 }

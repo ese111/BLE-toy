@@ -21,8 +21,9 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintWidth_percent="0.85"
-            android:layout_marginStart="10dp"
+            app:layout_constraintWidth_percent="0.8"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
             android:inputType="text"
             android:text="@={vm.search}"
             android:hint="@string/search_hint"/>
@@ -30,10 +31,11 @@
         <Button
             android:id="@+id/btn_search"
             android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_height="35dp"
             android:background="@drawable/ic_baseline_search_24"
             android:textColor="@color/black"
             android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toEndOf="@id/et_search" />
 

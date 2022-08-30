@@ -27,7 +27,7 @@ class DeviceListAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Device) {
-            binding.item = item.name
+            binding.item = item
             setOnConnectClick(item.address)
             setOnDisconnectClick(item.address)
         }
