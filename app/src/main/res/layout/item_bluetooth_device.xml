@@ -5,7 +5,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
+        <variable
+            name="item"
+            type="java.lang.String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,6 +35,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="10dp"
+                android:text="@{item}"
                 tools:text="Device name" />
 
             <TextView
