@@ -1,15 +1,13 @@
-package com.example.bluetooth.ui
+package com.example.bluetooth.ui.address
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bluetooth.databinding.ActivityAddressBinding
-import com.example.bluetooth.util.DefaultPosition
+import com.example.bluetooth.ui.bluetooth.MainActivity
 import com.example.bluetooth.util.repeatOnStarted
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddressActivity : AppCompatActivity() {

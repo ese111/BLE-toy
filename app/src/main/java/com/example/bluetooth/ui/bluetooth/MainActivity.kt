@@ -1,4 +1,4 @@
-package com.example.bluetooth.ui
+package com.example.bluetooth.ui.bluetooth
 
 import android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
 import android.app.Activity
@@ -12,7 +12,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -23,7 +22,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import com.example.bluetooth.BuildConfig
-import com.example.bluetooth.data.model.UserPosition
 import com.example.bluetooth.databinding.ActivityMainBinding
 import com.example.bluetooth.util.AppPermission.getPermissionList
 import com.example.bluetooth.util.repeatOnStarted

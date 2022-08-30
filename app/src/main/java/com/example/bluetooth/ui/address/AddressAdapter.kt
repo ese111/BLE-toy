@@ -1,4 +1,4 @@
-package com.example.bluetooth.ui
+package com.example.bluetooth.ui.address
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.bluetooth.data.model.MapResponse
 import com.example.bluetooth.databinding.ItemAddressBinding
 
-class AddressAdapter(private val callback: (MapResponse) -> Unit): ListAdapter<MapResponse, AddressAdapter.AddressViewHolder>(AddressDiffUtil) {
+class AddressAdapter(private val callback: (MapResponse) -> Unit): ListAdapter<MapResponse, AddressAdapter.AddressViewHolder>(
+    AddressDiffUtil
+) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AddressViewHolder {
         return AddressViewHolder(

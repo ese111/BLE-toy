@@ -1,4 +1,4 @@
-package com.example.bluetooth.ui
+package com.example.bluetooth.ui.address
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

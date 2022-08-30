@@ -1,4 +1,4 @@
-package com.example.bluetooth.ui
+package com.example.bluetooth.ui.bluetooth
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

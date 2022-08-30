@@ -36,7 +36,7 @@
         android:theme="@style/Theme.Bluetooth"
         tools:targetApi="s">
         <activity
-            android:name=".ui.AddressActivity"
+            android:name=".ui.address.AddressActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,7 +48,7 @@
         <service android:name=".data.service.BluetoothService" />
 
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.bluetooth.MainActivity"
             android:exported="false">
 
         </activity>

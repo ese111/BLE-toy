@@ -1,4 +1,4 @@
-package com.example.bluetooth.ui
+package com.example.bluetooth.ui.bluetooth
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
