@@ -1,10 +1,11 @@
-package com.example.bluetooth
+package com.example.bluetooth.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.bluetooth.data.model.Device
 import com.example.bluetooth.databinding.ItemBluetoothDeviceBinding
 
 class DeviceListAdapter(

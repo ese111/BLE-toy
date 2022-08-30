@@ -28,9 +28,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Bluetooth"
         tools:targetApi="s">
-        <service android:name=".BluetoothService"/>
+        <service android:name=".data.service.BluetoothService"/>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

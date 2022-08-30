@@ -1,4 +1,4 @@
-package com.example.bluetooth
+package com.example.bluetooth.data.service
 
 import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.app.Service
@@ -10,7 +10,9 @@ import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import javax.inject.Singleton
 
+@Singleton
 class BluetoothService: Service() {
 
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -58,6 +60,7 @@ class BluetoothService: Service() {
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     bluetoothGatt = device.connectGatt(this, false, bluetoothGattCallback)
+                    Log.w(TAG, "connect > ${bluetoothGatt?.device}")
                 }
             } catch (exception: IllegalArgumentException) {
                 Log.w(TAG, "Device not found with provided address.")
@@ -68,7 +71,7 @@ class BluetoothService: Service() {
             Log.w(TAG, "BluetoothAdapter not initialized")
             return false
         }
-        return  false
+        return  true
     }
 
     fun disconnect(address: String): Boolean {
